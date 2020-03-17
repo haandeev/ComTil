@@ -22,6 +22,7 @@ public class HtmlBuilder {
     ArrayList<ScriptTag> scriptTags = new ArrayList<>();
     ArrayList<HtmlGoogleFont> googlefonts = new ArrayList<>();
     ArrayList<HtmlPageSegment> segments = new ArrayList<>();
+    String pageTitle = null;
     
     HtmlThemeCustom theme = new HtmlThemeDefault();
     HtmlLink backLink = null;
@@ -35,9 +36,9 @@ public class HtmlBuilder {
     public void addCssFile(String cssFileName){
         cssFiles.add(cssFileName);
     }
-    
-    public void addH1Tile(String title){
-        titles.add(new HtmlHTitle(1, title));
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
     }
     
     public void addElements(HtmlElement element){
@@ -82,6 +83,10 @@ public class HtmlBuilder {
             
         sbut.append("</header>");
         sbut.append("<body>");
+        
+        if (pageTitle != null){
+            sbut.append(String.format("<h1>%s</h1>", pageTitle));
+        }
         
         if (menus.size() > 0){
             sbut.append(theme.generateSideMenu(menus));

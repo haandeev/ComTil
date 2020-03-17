@@ -88,4 +88,60 @@ public class WebCall {
         
     }
     
+    public static void callGET(String server, int port, String path, String query, WebResponse resp) throws MalformedURLException, IOException{
+        callGET(String.format("http://%s:%d/%s", server, port, path), query, resp);
+    }
+    
+    public static void callGET(String link, String query, WebResponse resp) throws MalformedURLException, IOException{
+        if ((query != null) && (!query.isEmpty())){
+            link += "?" + query;
+        }
+        URL u = new URL(link);
+        HttpURLConnection ura = (HttpURLConnection) u.openConnection();
+        
+        ura.setRequestMethod("GET");
+        ura.setRequestProperty("Content-Type", "text/html; charset=utf8");
+        ura.setRequestProperty("Accept", "text/html");
+        
+        int code = ura.getResponseCode();
+        
+        BufferedReader bur = new BufferedReader(new InputStreamReader(ura.getInputStream()));
+        String line;
+        StringBuilder bsk = new StringBuilder();
+        while((line = bur.readLine())!= null){
+            bsk.append(line);
+        }
+        
+        if (resp != null){
+            resp.webreply(code, bsk.toString());
+        }
+        
+    }
+    
+    public static void callFirebase(String link, String authorization, WebResponse resp) throws MalformedURLException, IOException{
+        URL u = new URL(link);
+        HttpURLConnection ura = (HttpURLConnection) u.openConnection();
+        
+        ura.setRequestMethod("GET");
+        ura.setRequestProperty("Content-Type", "application/json; charset=utf8");
+        ura.setRequestProperty("Authorization", String.format("key=%s",authorization));
+        ura.setRequestProperty("Accept", "text/html");
+        
+        int code = ura.getResponseCode();
+        
+        BufferedReader bur = new BufferedReader(new InputStreamReader(ura.getInputStream()));
+        String line;
+        StringBuilder bsk = new StringBuilder();
+        while((line = bur.readLine())!= null){
+            bsk.append(line);
+        }
+        
+        if (resp != null){
+            resp.webreply(code, bsk.toString());
+        }
+        
+    }
+    
+    
+    
 }
