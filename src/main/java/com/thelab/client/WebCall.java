@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
 
 /**
  *
@@ -142,6 +143,54 @@ public class WebCall {
         
     }
     
+    public interface HttpReturn{
+        public void onReturn(String value, int code);
+        
+    }
+    
+    public static void postJsonRequest(ExecutorService exe, String server, int ip, String path, final String body, final HttpReturn rettask){
+        final String strurl = String.format("http://%s:%d/%s", server, ip, path);
+        System.out.println("try connect:" + strurl);
+        exe.submit(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    URL ure = new URL(strurl);
+                    HttpURLConnection con = (HttpURLConnection) ure.openConnection();
+                    con.setRequestMethod("POST");
+                    con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+                    con.setRequestProperty("Content-Type", "application/json");
+
+                    String urlParameters = body;
+
+                    con.setDoOutput(true);
+                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                    wr.writeBytes(urlParameters);
+                    wr.flush();
+                    wr.close();
+
+                    int responseCode = con.getResponseCode();
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+                    rettask.onReturn(response.toString(), responseCode);
+
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+        });
+    }
     
     
 }
